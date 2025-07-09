@@ -3,8 +3,9 @@ class Node:
         """constructor for the node class"""
         self.value = value
         self.next = None
+        self.prev = None
 
-class LinkedList:
+class DoublyLinkedList:
     def __init__(self, value) -> None:
         """constructor for LinkedList class"""
         new_node = Node(value)
@@ -13,42 +14,38 @@ class LinkedList:
         self.length = 1
 
     def __str__(self) -> str:
-        """Printing the Linked List"""
+        """Printing the Doubly Linked List"""
         temp = self.head
         text = ''
         while temp is not None:
-            text += f"{temp.value} -> "
+            text += f"{temp.value} <=> "
             temp = temp.next
         
-        return text[:-4]
+        return text[:-5]
     
     def append(self, value) -> bool:
-        """Appending node to Linked List"""
+        """Appending node to Doubly Linked List"""
         new_node = Node(value)
 
         if self.length == 0:
             self.head = new_node
             self.tail = new_node
         else:
+            new_node.prev = self.tail
             self.tail.next = new_node
             self.tail = new_node
         self.length += 1
         return True
     
     def pop(self) -> Node:
-        """Pop the node from teh trailing end of the Linked List"""
+        """Pop the node from teh trailing end of the Doubly Linked List"""
         if self.length == 0:
             return False
         
-        temp = self.head
-        pre = self.head
-
-        while temp.next:
-            pre = temp
-            temp = temp.next
-        
-        self.tail = pre
+        temp = self.tail        
+        self.tail = self.tail.prev
         self.tail.next = None
+        temp.prev = None
         self.length -= 1
 
         if self.length == 0:
@@ -58,25 +55,27 @@ class LinkedList:
         return temp
     
     def prepend(self, value) -> bool:
-        """Append the node at the beginning of the Linked List"""
+        """Append the node at the beginning of the Doubly Linked List"""
         new_node = Node(value)
         if self.length == 0:
             self.head = new_node
             self.tail = new_node
         else:
             new_node.next = self.head
+            self.head.prev = new_node
             self.head = new_node
         self.length += 1
         return True
     
     def pop_first(self) -> Node:
-        """Remove the node from the beginning of the Linked List"""
+        """Remove the item from the beginning of the Doubly Linked List"""
         if self.length == 0:
             return None
         
         temp = self.head
 
         self.head = self.head.next
+        self.head.prev = None
         temp.next = None
         self.length -= 1
 
@@ -86,7 +85,7 @@ class LinkedList:
         return temp
     
     def get(self, index) -> Node:
-        """Fetch the node from the Linked List"""
+        """Fetch the node from the Doubly Linked List"""
         if index < 0 or index >= self.length:
             return None
         
@@ -96,7 +95,7 @@ class LinkedList:
         return temp
     
     def set_value(self, index, value) -> bool:
-        """Setting up the intermediate node node in the Linked List"""
+        """Setting up the intermediate value in the Doubly Linked List"""
         if index < 0 or index >= self.length:
             return False
         
@@ -107,7 +106,7 @@ class LinkedList:
         return False
     
     def insert(self, index, value) -> bool:
-        """Inserting the node in between the Linked List"""
+        """Inserting the value in between the Doubly Linked List"""
         if index < 0 or index > self.length:
             return False
         if index == 0:
@@ -115,16 +114,18 @@ class LinkedList:
         if index == self.length:
             return self.append(value)
         new_node = Node(value)
-        temp = self.get(index-1)
-        if temp:
-            new_node.next = temp.next
-            temp.next = new_node
-            self.length += 1
-            return True
-        return False
+        before = self.get(index-1)
+        after = before.next
+        
+        new_node.next = after
+        new_node.prev = before
+        after.prev = new_node
+        before.next = new_node
+        self.length += 1
+        return True
     
     def remove(self, index) -> Node:
-        """Remove the node from the Linked List"""
+        """Remove the node from the Doubly Linked List"""
         if index < 0 or index >= self.length:
             return False
         
@@ -133,10 +134,11 @@ class LinkedList:
         if index == self.length-1:
             return self.pop()
         
-        pre = self.get(index-1)
-        temp = pre.next
+        temp = self.get(index)
 
-        pre.next = temp.next
+        temp.prev.next = temp.next
+        temp.next.prev = temp.prev
+        temp.prev = None
         temp.next = None
         self.length -= 1
         return temp
@@ -144,10 +146,10 @@ class LinkedList:
 
 
 if __name__ == '__main__':
-    ll = LinkedList(2)
-    ll.append(3)
-    ll.append(4)
-    ll.prepend(1)
-    ll.insert(1,5)
-    ll.remove(1)
-    print(ll)
+    dll = DoublyLinkedList(2)
+    dll.append(3)
+    dll.append(4)
+    dll.append(5)
+    dll.prepend(1)
+    dll.remove(1)
+    print(dll)
